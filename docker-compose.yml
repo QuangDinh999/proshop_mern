@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+  mongo:
+    image: mongo:6.0
+    restart: always
+    container_name: proshop_mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo_data:/data/db
+
+  backend:
+    build: ./backend
+    container_name: proshop_backend
+    restart: always
+    environment:
+      MONGO_URI: mongodb://root:example@mongo:27017/proshop?authSource=admin
+      NODE_ENV: development
+    ports:
+      - '5000:5000'
+    depends_on:
+      - mongo
+    volumes:
+      - ./backend:/app
+
+  frontend:
+    build: ./frontend
+    container_name: proshop_frontend
+    restart: always
+    ports:
+      - '3000:80'
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+
+volumes:
+  mongo_data:
